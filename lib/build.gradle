@@ -1,0 +1,159 @@
+repositories {
+    maven { url "https://dl.bintray.com/spekframework/spek-dev" }
+}
+apply plugin: 'java'
+apply plugin: 'kotlin-multiplatform'
+
+archivesBaseName = 'presenter-middleware'
+
+group 'org.reduxkotlin'
+version '0.2'
+
+kotlin {
+    jvm()
+    js() {
+        [compileKotlinJs, compileTestKotlinJs].each { configuration ->
+            configuration.kotlinOptions {
+                moduleKind = 'umd'
+                sourceMap = true
+                metaInfo = true
+            }
+        }
+    }
+    //-module-name args are needed to prevent circular deps bug on native platforms
+    iosArm64("ios") {
+        compilations.main.extraOpts.addAll(["-module-name", "presenter-middleware"])
+    }
+
+    iosX64("iosSim") {
+        compilations.main.extraOpts.addAll(["-module-name", "presenter-middleware"])
+    }
+    macosX64("macos") {
+        compilations.main.extraOpts.addAll(["-module-name", "presenter-middleware"])
+    }
+
+    mingwX64("win") {
+        compilations.main.extraOpts.addAll(["-module-name", "presenter-middleware"])
+    }
+
+    wasm32("wasm") {
+        compilations.main.extraOpts.addAll(["-module-name", "presenter-middleware"])
+    }
+
+    linuxArm32Hfp("linArm32") {
+        compilations.main.extraOpts.addAll(["-module-name", "presenter-middleware"])
+    }
+
+    linuxMips32("linMips32") {
+        compilations.main.extraOpts.addAll(["-module-name", "presenter-middleware"])
+    }
+
+    linuxMipsel32("linMipsel32") {
+        compilations.main.extraOpts.addAll(["-module-name", "presenter-middleware"])
+    }
+
+    linuxX64("lin64") {
+        compilations.main.extraOpts.addAll(["-module-name", "presenter-middleware"])
+    }
+
+
+    sourceSets {
+        commonMain {
+            dependencies {
+                implementation kotlin("stdlib-common")
+                implementation "org.reduxkotlin:redux-kotlin-reselect:0.2.6"
+                implementation "org.reduxkotlin:redux-kotlin:0.2.4"
+                implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core-common:$project.versions.coroutinesVersion"
+            }
+        }
+        commonTest {
+            kotlin.srcDir('src/test/kotlin')
+            dependencies {
+                implementation kotlin("test-common")
+                implementation kotlin("test-annotations-common")
+                implementation "org.spekframework.spek2:spek-dsl-metadata:$project.versions.spek"
+                implementation "ch.tutteli.atrium:atrium-cc-en_GB-robstoll-common:$project.versions.atrium"
+                implementation "io.mockk:mockk-common:1.9.3"
+            }
+        }
+
+        jvmMain {
+            kotlin.srcDir('src/jvmMain/kotlin')
+            dependencies {
+                implementation kotlin("stdlib")
+            }
+        }
+        jvmTest {
+            dependencies {
+                implementation kotlin("test")
+                implementation kotlin("test-junit")
+                implementation "org.spekframework.spek2:spek-dsl-jvm:$project.versions.spek"
+                implementation "ch.tutteli.atrium:atrium-cc-en_GB-robstoll:$project.versions.atrium"
+                implementation "io.mockk:mockk:1.9.3"
+
+                runtimeOnly "org.spekframework.spek2:spek-runner-junit5:$project.versions.spek"
+                runtimeOnly 'org.jetbrains.kotlin:kotlin-reflect'
+            }
+        }
+        jsMain {
+            kotlin.srcDir('src/jsMain/kotlin')
+            dependencies {
+                implementation kotlin("stdlib-js")
+            }
+            compileKotlinJs {
+                kotlinOptions.metaInfo = true
+                kotlinOptions.sourceMap = true
+                kotlinOptions.suppressWarnings = true
+                kotlinOptions.verbose = true
+                kotlinOptions.main = "call"
+                kotlinOptions.moduleKind = "umd"
+            }
+        }
+        jsTest {
+            dependencies {
+                implementation kotlin("test-js")
+                implementation kotlin("stdlib-js")
+            }
+        }
+
+        iosSimMain.dependsOn iosMain
+        iosSimTest.dependsOn iosTest
+
+    }
+}
+
+
+afterEvaluate {
+    // Alias the task names we use elsewhere to the new task names.
+    tasks.create('installMP').dependsOn('publishKotlinMultiplatformPublicationToMavenLocal')
+    tasks.create('installLocally') {
+        dependsOn 'publishKotlinMultiplatformPublicationToTestRepository'
+        dependsOn 'publishJvmPublicationToTestRepository'
+        dependsOn 'publishJsPublicationToTestRepository'
+        dependsOn 'publishMetadataPublicationToTestRepository'
+    }
+    tasks.create('installIosLocally') {
+        dependsOn 'publishKotlinMultiplatformPublicationToTestRepository'
+        dependsOn 'publishIosArm32PublicationToTestRepository'
+        dependsOn 'publishIosArm64PublicationToTestRepository'
+        dependsOn 'publishIosX64PublicationToTestRepository'
+        dependsOn 'publishMetadataPublicationToTestRepository'
+    }
+    // NOTE: We do not alias uploadArchives because CI runs it on Linux and we only want to run it on Mac OS.
+    //tasks.create('uploadArchives').dependsOn('publishKotlinMultiplatformPublicationToMavenRepository')
+}
+
+apply from: rootProject.file('gradle/publish.gradle')
+
+publishing {
+    publications.all {
+        // Rewrite all artifacts from using the project name to just 'runtime'.
+        artifactId = artifactId.replace(project.name, 'presenter-middleware')
+    }
+}
+
+jvmTest {
+    useJUnitPlatform {
+        includeEngines 'spek2'
+    }
+}
