@@ -25,7 +25,7 @@ kotlin {
   sourceSets {
         commonMain { //   <---  name may vary on your project
             dependencies {
-                implementation "org.reduxkotlin:presenter-middleare:0.2"
+                implementation "org.reduxkotlin:presenter-middlware:0.2.8"
             }
         }
  }
@@ -33,7 +33,7 @@ kotlin {
 
 For JVM only:
 ```
-  implementation "org.reduxkotlin:presenter-middleware-jvm:0.2"
+  implementation "org.reduxkotlin:presenter-middleware-jvm:0.2.8"
 ```
 
 [badge-android]: http://img.shields.io/badge/platform-android-brightgreen.svg?style=flat
