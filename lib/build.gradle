@@ -1,26 +1,31 @@
 repositories {
     maven { url "https://dl.bintray.com/spekframework/spek-dev" }
 }
-apply plugin: 'java'
+apply plugin: 'com.android.library'
 apply plugin: 'kotlin-multiplatform'
 
 archivesBaseName = 'presenter-middleware'
 
 group 'org.reduxkotlin'
-version '0.2'
+version '0.2.9'
 
 kotlin {
-    jvm()
-    js() {
-        [compileKotlinJs, compileTestKotlinJs].each { configuration ->
-            configuration.kotlinOptions {
-                moduleKind = 'umd'
-                sourceMap = true
-                metaInfo = true
-            }
-        }
+    targets {
+        fromPreset(presets.android, 'android')
     }
+    jvm()
+    // commented targets are unsupported with current coroutine version 1.2.2
+//    js() {
+//        [compileKotlinJs, compileTestKotlinJs].each { configuration ->
+//            configuration.kotlinOptions {
+//                moduleKind = 'umd'
+//                sourceMap = true
+//                metaInfo = true
+//            }
+//        }
+//    }
     //-module-name args are needed to prevent circular deps bug on native platforms
+
     iosArm64("ios") {
         compilations.main.extraOpts.addAll(["-module-name", "presenter-middleware"])
     }
@@ -28,41 +33,41 @@ kotlin {
     iosX64("iosSim") {
         compilations.main.extraOpts.addAll(["-module-name", "presenter-middleware"])
     }
-    macosX64("macos") {
-        compilations.main.extraOpts.addAll(["-module-name", "presenter-middleware"])
-    }
-
-    mingwX64("win") {
-        compilations.main.extraOpts.addAll(["-module-name", "presenter-middleware"])
-    }
-
-    wasm32("wasm") {
-        compilations.main.extraOpts.addAll(["-module-name", "presenter-middleware"])
-    }
-
-    linuxArm32Hfp("linArm32") {
-        compilations.main.extraOpts.addAll(["-module-name", "presenter-middleware"])
-    }
-
-    linuxMips32("linMips32") {
-        compilations.main.extraOpts.addAll(["-module-name", "presenter-middleware"])
-    }
-
-    linuxMipsel32("linMipsel32") {
-        compilations.main.extraOpts.addAll(["-module-name", "presenter-middleware"])
-    }
-
-    linuxX64("lin64") {
-        compilations.main.extraOpts.addAll(["-module-name", "presenter-middleware"])
-    }
+//    macosX64("macos") {
+//        compilations.main.extraOpts.addAll(["-module-name", "presenter-middleware"])
+//    }
+//
+//    mingwX64("win") {
+//        compilations.main.extraOpts.addAll(["-module-name", "presenter-middleware"])
+//    }
+//
+//    wasm32("wasm") {
+//        compilations.main.extraOpts.addAll(["-module-name", "presenter-middleware"])
+//    }
+//
+//    linuxArm32Hfp("linArm32") {
+//        compilations.main.extraOpts.addAll(["-module-name", "presenter-middleware"])
+//    }
+//
+//    linuxMips32("linMips32") {
+//        compilations.main.extraOpts.addAll(["-module-name", "presenter-middleware"])
+//    }
+//
+//    linuxMipsel32("linMipsel32") {
+//        compilations.main.extraOpts.addAll(["-module-name", "presenter-middleware"])
+//    }
+//
+//    linuxX64("lin64") {
+//        compilations.main.extraOpts.addAll(["-module-name", "presenter-middleware"])
+//    }
 
 
     sourceSets {
         commonMain {
             dependencies {
                 implementation kotlin("stdlib-common")
-                implementation "org.reduxkotlin:redux-kotlin-reselect:0.2.6"
-                implementation "org.reduxkotlin:redux-kotlin:0.2.4"
+                implementation "org.reduxkotlin:redux-kotlin-reselect:0.2.9"
+                implementation "org.reduxkotlin:redux-kotlin:0.2.6"
                 implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core-common:$project.versions.coroutinesVersion"
             }
         }
@@ -77,16 +82,26 @@ kotlin {
             }
         }
 
+        androidMain {
+            dependencies {
+                api "org.jetbrains.kotlin:kotlin-stdlib:$project.versions.kotlinVersion"
+                implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$project.versions.coroutinesVersion"
+                implementation 'androidx.appcompat:appcompat:1.1.0-rc01'
+            }
+        }
+
         jvmMain {
             kotlin.srcDir('src/jvmMain/kotlin')
             dependencies {
                 implementation kotlin("stdlib")
+                implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$project.versions.coroutinesVersion"
             }
         }
         jvmTest {
             dependencies {
                 implementation kotlin("test")
                 implementation kotlin("test-junit")
+                implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$project.versions.coroutinesVersion"
                 implementation "org.spekframework.spek2:spek-dsl-jvm:$project.versions.spek"
                 implementation "ch.tutteli.atrium:atrium-cc-en_GB-robstoll:$project.versions.atrium"
                 implementation "io.mockk:mockk:1.9.3"
@@ -95,30 +110,57 @@ kotlin {
                 runtimeOnly 'org.jetbrains.kotlin:kotlin-reflect'
             }
         }
-        jsMain {
-            kotlin.srcDir('src/jsMain/kotlin')
+//        jsMain {
+//            kotlin.srcDir('src/jsMain/kotlin')
+//            dependencies {
+//                implementation kotlin("stdlib-js")
+//            }
+//            compileKotlinJs {
+//                kotlinOptions.metaInfo = true
+//                kotlinOptions.sourceMap = true
+//                kotlinOptions.suppressWarnings = true
+//                kotlinOptions.verbose = true
+//                kotlinOptions.main = "call"
+//                kotlinOptions.moduleKind = "umd"
+//            }
+//        }
+//        jsTest {
+//            dependencies {
+//                implementation kotlin("test-js")
+//                implementation kotlin("stdlib-js")
+//            }
+//        }
+        iosMain {
             dependencies {
-                implementation kotlin("stdlib-js")
-            }
-            compileKotlinJs {
-                kotlinOptions.metaInfo = true
-                kotlinOptions.sourceMap = true
-                kotlinOptions.suppressWarnings = true
-                kotlinOptions.verbose = true
-                kotlinOptions.main = "call"
-                kotlinOptions.moduleKind = "umd"
-            }
-        }
-        jsTest {
-            dependencies {
-                implementation kotlin("test-js")
-                implementation kotlin("stdlib-js")
+                implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core-native:$project.versions.coroutinesVersion"
             }
         }
 
         iosSimMain.dependsOn iosMain
         iosSimTest.dependsOn iosTest
+        lin64Main.dependsOn iosMain
+        linArm32Main.dependsOn iosMain
+        linMips32Main.dependsOn iosMain
+        linMipsel32Main.dependsOn iosMain
 
+    }
+}
+
+android {
+    compileSdkVersion 29
+    defaultConfig {
+        minSdkVersion 15
+    }
+    buildTypes {
+        //This is for MultiplatformSettings
+        debug {
+            // MPP libraries don't currently get this resolution automatically
+            matchingFallbacks = ['release']
+        }
+        release {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
     }
 }
 

@@ -10,6 +10,7 @@ buildscript {
     }
 
     dependencies {
+        classpath deps.plugins.android
         classpath deps.plugins.kotlin
         classpath deps.plugins.dokka
     }
@@ -20,6 +21,7 @@ allprojects {
     repositories {
         google()
         jcenter()
+        mavenCentral()
         maven { url "https://oss.sonatype.org/content/repositories/snapshots" }
         maven { url "https://dl.bintray.com/spekframework/spek-dev" }
 
