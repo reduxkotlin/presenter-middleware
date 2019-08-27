@@ -11,9 +11,34 @@
 ![badge][badge-wasm]
 
 
-Documentation to come.
+Write concise multiplatform presenter functions with presenter-middleware:
 
-Example usage:
+```
+interface StartView : GameBaseView {
+    fun showLoading()
+    fun hideLoading()
+    fun showError(msg: String)
+
+    override fun presenter(): Presenter<View, AppState> = startPresenter
+}
+
+val startPresenter = presenter<StartView> {
+    {
+        select { state.isLoadingItems } then {
+            if (state.isLoadingItems) {
+                showLoading()
+            } else {
+                hideLoading()
+            }
+        }
+
+        select { state.errorLoadingItems } then { showError(state.errorMsg) }
+    }
+}
+
+```
+Presenter-middleware handles wiring this up to your view and store subscriptions.  Just implement the interface on Android and iOS and dispatch lifecycle events.  See the [ReadingList sample app](https://github.com/reduxkotlin/ReadingListSampleApp) or the [Name Game Sample App](https://github.com/reduxkotlin/NameGameSampleApp) for example usage.
+
 
 
 __How to add to project:__
@@ -29,6 +54,13 @@ kotlin {
             }
         }
  }
+```
+
+Add the presetner store-enhancer:
+```
+  val appStore = createStore(reducer, AppState.INITIAL_STATE,
+                    compose(listOf(presenterEnhancer(uiContext),
+                            applyMiddleware(createThunkMiddleware())
 ```
 
 For JVM only:
