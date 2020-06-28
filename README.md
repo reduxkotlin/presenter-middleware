@@ -50,7 +50,7 @@ kotlin {
   sourceSets {
         commonMain { //   <---  name may vary on your project
             dependencies {
-                implementation "org.reduxkotlin:presenter-middlware:0.2.8"
+                implementation "org.reduxkotlin:presenter-middleware:0.2.8"
             }
         }
  }
