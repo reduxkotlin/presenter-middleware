@@ -1,3 +1,5 @@
+> ⚠️ **This repository is archived.** The presenter pattern predates Compose; see the [redux-kotlin monorepo](https://github.com/reduxkotlin/redux-kotlin) Compose bindings (`redux-kotlin-compose`) instead.
+
 # Presenter Middleware
 
 
